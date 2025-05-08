@@ -28,7 +28,7 @@ model Restaurant {
   adres    String
   tip      Int
   phone    String
-  isActive Boolean    @default(true)
+  isActive Boolean?    @default(true)
   User     User[]
   Category Category[]
   Product  Product[]
@@ -45,7 +45,7 @@ model User {
   region       Region     @relation(fields: [regionId], references: [id])
   regionId     Int
   role         Role
-  balance      Int
+  balance      Int?
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   restaurantId Int
 }
@@ -75,6 +75,7 @@ model Order {
   table        String
   restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
   restaurantId Int
+  status       Sttatus
   product      Product[]  @relation("OrderItem")
   Withdraw     Withdraw[]
   Debt         Debt[]
@@ -111,4 +112,10 @@ enum Role {
 enum Type {
   INCOME
   OUTCOME
+}
+
+enum Sttatus {
+  PANDING
+  PAID
+  DEBT
 }
