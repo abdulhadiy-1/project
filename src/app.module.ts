@@ -12,7 +12,7 @@ import { DebtModule } from './debt/debt.module';
 import { RegionModule } from './region/region.module';
 
 @Module({
-  imports: [PrismaModule, RestaurantModule, UserModule, CategoryModule, ProductModule, WithdrawModule,OrderModule,DebtModule,RegionModule],
+  imports: [RegionModule, PrismaModule, RestaurantModule, UserModule, CategoryModule, ProductModule,OrderModule, WithdrawModule,DebtModule],
   controllers: [AppController],
   providers: [AppService],
 })

@@ -21,8 +21,13 @@ export class WithdrawService {
   }
 
 
-  async findAll() {
+  async findAll(page: number, limit: number) {
+    page = Number(page);
+    limit = Number(limit);
+    const skip = (page - 1) * limit;
     let withdraws = await this.prisma.withdraw.findMany({
+      skip,
+      take: limit,
       include: {
         order: true,
         restaurant: true

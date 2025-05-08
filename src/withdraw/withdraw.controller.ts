@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { WithdrawService } from './withdraw.service';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { UpdateWithdrawDto } from './dto/update-withdraw.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('withdraw')
 export class WithdrawController {
@@ -11,10 +12,14 @@ export class WithdrawController {
   create(@Body() createWithdrawDto: CreateWithdrawDto) {
     return this.withdrawService.create(createWithdrawDto);
   }
-
+  @ApiQuery({name:'page', required:false, type:Number})
+  @ApiQuery({name:'limit', required:false, type:Number})
   @Get()
-  findAll() {
-    return this.withdrawService.findAll();
+  findAll(
+    @Query('page') page: number=1,
+    @Query('limit') limit: number=10
+  ) {
+    return this.withdrawService.findAll(page, limit);
   }
 
   @Get(':id')
