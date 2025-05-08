@@ -7,9 +7,13 @@ import { UserModule } from './user/user.module';
 import { CategoryModule } from './category/category.module';
 import { ProductModule } from './product/product.module';
 import { WithdrawModule } from './withdraw/withdraw.module';
+import { OrderModule } from './order/order.module';
+import { DebtModule } from './debt/debt.module';
+import { OrderItemModule } from './order-item/order-item.module';
+import { RegionModule } from './region/region.module';
 
 @Module({
-  imports: [PrismaModule, RestaurantModule, UserModule, CategoryModule, ProductModule, WithdrawModule],
+  imports: [PrismaModule, RestaurantModule, UserModule, CategoryModule, ProductModule, WithdrawModule,OrderModule,DebtModule,OrderItemModule,RegionModule],
   controllers: [AppController],
   providers: [AppService],
 })
