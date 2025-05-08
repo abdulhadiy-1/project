@@ -22,11 +22,7 @@
   "dependencies": {
     "@nestjs/common": "^11.0.1",
     "@nestjs/core": "^11.0.1",
-<<<<<<< HEAD
-    "@nestjs/mapped-types": "*",
-=======
     "@nestjs/jwt": "^11.0.0",
->>>>>>> f50a46cef7b266ed0b7bb3840486f6ddde4ba2e0
     "@nestjs/platform-express": "^11.0.1",
     "@nestjs/swagger": "^11.2.0",
     "@prisma/client": "^6.7.0",

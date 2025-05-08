@@ -22,7 +22,8 @@ export class OrderService {
         include: {
           product: true,
           Withdraw: true,
-          Debt: true
+          Debt: true,
+          user: true,
         }
       })
       return orders;
