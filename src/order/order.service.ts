@@ -166,20 +166,22 @@ export class OrderService {
     }
   }
 
-async remove(id: number) {
-  try {
-    await this.prisma.orderItem.deleteMany({
-      where: { orderId: id },
-    });
 
-    const removed = await this.prisma.order.delete({
-      where: { id },
-    });
-
-    return removed;
-  } catch (error) {
-    throw new Error(`remove error! ${error.message}`);
+  async remove(id: number) {
+    try {
+      await this.prisma.orderItem.deleteMany({
+        where: { orderId: id },
+      });
+  
+      const removed = await this.prisma.order.delete({
+        where: { id },
+      });
+  
+      return removed;
+    } catch (error) {
+      throw new Error(`remove error! ${error.message}`);
+    }
   }
+  
 }
 
-}

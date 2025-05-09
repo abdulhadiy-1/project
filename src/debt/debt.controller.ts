@@ -20,7 +20,7 @@ import { Role } from '@prisma/client';
 
 @Controller('debt')
 export class DebtController {
-  constructor(private readonly debtService: DebtService) {}
+  constructor(private readonly debtService: DebtService) { }
 
   @RoleD(Role.CASHER)
   @UseGuards(RoleGuard)
@@ -31,9 +31,13 @@ export class DebtController {
   }
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'restaurantId', required: true, type: Number })
   @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.debtService.findAll(page, limit);
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('restaurantId') restaurantId: number) {
+    return this.debtService.findAll(+restaurantId, page, limit);
   }
 
   @Get(':id')

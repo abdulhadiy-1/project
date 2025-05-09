@@ -3,7 +3,7 @@ import { CreateOrderDto } from './create-order.dto';
 
 export class UpdateOrderDto extends PartialType(CreateOrderDto) {
     @ApiProperty({ example: '1' })
-    table: string;
+    table?: string;
     @ApiProperty({ example: '1' })
-    restaurantId: number;
+    restaurantId?: number;
 }

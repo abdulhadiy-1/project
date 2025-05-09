@@ -20,7 +20,7 @@ import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('withdraw')
 export class WithdrawController {
-  constructor(private readonly withdrawService: WithdrawService) {}
+  constructor(private readonly withdrawService: WithdrawService) { }
 
   @RoleD(Role.CASHER)
   @UseGuards(RoleGuard)
@@ -31,9 +31,13 @@ export class WithdrawController {
   }
   @ApiQuery({ name: 'page', required: false, type: Number })
   @ApiQuery({ name: 'limit', required: false, type: Number })
+  @ApiQuery({ name: 'restaurantId', required: true, type: Number })
   @Get()
-  findAll(@Query('page') page: number = 1, @Query('limit') limit: number = 10) {
-    return this.withdrawService.findAll(page, limit);
+  findAll(
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+    @Query('restaurantId') restaurantId: string,) {
+    return this.withdrawService.findAll(+restaurantId, page, limit);
   }
 
   @Get(':id')
