@@ -4,10 +4,12 @@ import { IsNotEmpty, IsNumber, IsString } from 'class-validator';
 export class CreateOrderDto {
   @ApiProperty({ example: '1', description: 'table number' })
   @IsString()
-    @IsNotEmpty()
+  @IsNotEmpty()
   table: string;
 
   @ApiProperty({ example: 1, description: 'restaurant ID' })
+  @IsNumber()
+  @IsNotEmpty()
   restaurantId: number;
 
   @ApiProperty({
