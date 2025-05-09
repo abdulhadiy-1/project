@@ -6,10 +6,9 @@ import { ValidationPipe } from '@nestjs/common';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const config = new DocumentBuilder()
-    .setTitle('Cats example')
-    .setDescription('The cats API description')
+    .setTitle('Restaurant API')
+    .setDescription('The restaurant API description')
     .setVersion('1.0')
-    .addTag('cats')
     .addSecurityRequirements('bearer', ['bearer'])
     .addBearerAuth()
     .build();
