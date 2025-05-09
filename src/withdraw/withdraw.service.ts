@@ -9,7 +9,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class WithdrawService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   async create(data: CreateWithdrawDto) {
     const restaurant = await this.prisma.restaurant.findUnique({
@@ -27,10 +27,10 @@ export class WithdrawService {
       if (!order) throw new NotFoundException('Order not found');
 
       const orderTotal = order.total ?? 0;
-      let userId = order.userId? order.userId : 1
+      let userId = order.userId ? order.userId : 1
       let tip = (orderTotal / 100) * restaurant.tip
-      await this.prisma.user.update({where: {id: userId}, data: {balance: tip}})
-      await this.prisma.order.update({where: {id: data.orderId}, data: {status: "PAID"}})
+      await this.prisma.user.update({ where: { id: userId }, data: { balance: tip } })
+      await this.prisma.order.update({ where: { id: data.orderId }, data: { status: "PAID" } })
       await this.prisma.restaurant.update({
         where: { id: data.restaurantId },
         data: { sum: currentSum + orderTotal },
@@ -51,16 +51,20 @@ export class WithdrawService {
     return withdraw;
   }
 
-  async findAll(page: number, limit: number) {
+  async findAll(restaurantId: number, page: number, limit: number) {
     page = Number(page);
     limit = Number(limit);
+    let where: any = {};
+    if (restaurantId) {
+      where.restaurantId = restaurantId
+    }
     const skip = (page - 1) * limit;
     let withdraws = await this.prisma.withdraw.findMany({
+      where,
       skip,
       take: limit,
       include: {
         order: true,
-        restaurant: true,
       },
     });
     return withdraws;
@@ -69,6 +73,7 @@ export class WithdrawService {
   async findOne(id: number) {
     try {
       let one = await this.prisma.withdraw.findFirst({ where: { id } });
+      return one;
     } catch (error) {
       throw new error(`findOne error ${error.message}`);
     }

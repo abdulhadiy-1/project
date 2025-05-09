@@ -10,32 +10,36 @@ export class DebtService {
   async create(data: CreateDebtDto) {
     try {
       let debt = await this.prisma.debt.create({ data })
-      await this.prisma.order.update({where: {id: data.orderId}, data: {status: "DEBT"}})
+      await this.prisma.order.update({ where: { id: data.orderId }, data: { status: "DEBT" } })
       return debt;
     } catch (error) {
       throw new Error(`Creating error! ${error.message}`)
     }
   }
 
-  async findAll(page: number, limit: number) {
-    try {
-      const skip = (page - 1) * limit;
-  
-      const debts = await this.prisma.debt.findMany({
-        skip,
-        take: limit,
-        include: {
-          order: true,
-          restaurant: true,
-        },
-      });
-  
-      return debts;
-    } catch (error) {
-      throw new Error(`findAll error ${error.message}`);
+  async findAll(restaurantId: number, page: number, limit: number) {
+
+    let where: any = {}
+    if (restaurantId) {
+      where.restaurantId = restaurantId
     }
+    const skip = (page - 1) * limit;
+
+    const debts = await this.prisma.debt.findMany({
+      where,
+      skip,
+      take: limit,
+      include: {
+        order: true,
+      },
+    });
+
+    return debts;
+
   }
-  
+
+
+
 
   async findOne(id: number) {
     try {
@@ -48,12 +52,35 @@ export class DebtService {
 
   async update(id: number, data: UpdateDebtDto) {
     try {
-      let updated = await this.prisma.debt.update({ where: { id }, data })
+      const { orderId, restaurantId, ...rest } = data;
+
+      const updateData: any = {
+        ...rest,
+      };
+
+      if (orderId) {
+        updateData.order = {
+          connect: { id: orderId },
+        };
+      }
+
+      if (restaurantId) {
+        updateData.restaurant = {
+          connect: { id: restaurantId },
+        };
+      }
+
+      const updated = await this.prisma.debt.update({
+        where: { id },
+        data: updateData,
+      });
+
       return updated;
     } catch (error) {
-      throw new Error(`update error ${error.message}`)
+      throw new Error(`update error! ${error.message}`);
     }
   }
+
 
   async remove(id: number) {
     try {

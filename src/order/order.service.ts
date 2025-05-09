@@ -80,7 +80,6 @@ export class OrderService {
         items: {
           include: {
             product: true,
-
           },
 
         },
@@ -115,19 +114,70 @@ export class OrderService {
 
   async update(id: number, data: UpdateOrderDto) {
     try {
-      let updated = await this.prisma.order.update({ where: { id }, data });
+      const { products, ...rest } = data;
+
+      let total = 0;
+
+      if (products) {
+        for (let e of products) {
+          const prd = await this.prisma.product.findUnique({
+            where: { id: e.productId },
+          });
+          if (!prd)
+            throw new NotFoundException(
+              `product with #${e.productId} id not found`,
+            );
+
+          total += prd.price * e.count;
+        }
+      }
+
+      const updateData: any = {
+        ...rest,
+      };
+
+      if (products) {
+        updateData.total = total;
+        updateData.items = {
+          deleteMany: {},
+          create: products.map((item) => ({
+            product: { connect: { id: item.productId } },
+            count: item.count,
+          })),
+        };
+      }
+
+      const updated = await this.prisma.order.update({
+        where: { id },
+        data: updateData,
+        include: {
+          items: {
+            include: { product: true },
+          },
+        },
+      });
+
       return updated;
     } catch (error) {
       throw new Error(`update error! ${error.message}`);
     }
   }
 
+
   async remove(id: number) {
     try {
-      let removed = await this.prisma.order.delete({ where: { id } });
+      await this.prisma.orderItem.deleteMany({
+        where: { orderId: id },
+      });
+  
+      const removed = await this.prisma.order.delete({
+        where: { id },
+      });
+  
       return removed;
     } catch (error) {
       throw new Error(`remove error! ${error.message}`);
     }
   }
+  
 }
