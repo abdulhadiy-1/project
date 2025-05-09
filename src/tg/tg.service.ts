@@ -13,7 +13,7 @@ export class TelegramService {
   async sendMessageByUsername( text: string, username: string |null) {
     const user = await this.findUserInDB(username);
     if (!user?.chatId) {
-      throw new Error('Пользователь не найден или не взаимодействовал с ботом');
+      return 'user not found'
     }
 
     return this.bot.telegram.sendMessage(user.chatId, text);
