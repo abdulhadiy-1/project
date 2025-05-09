@@ -29,6 +29,7 @@ model Restaurant {
   tip      Int
   phone    String
   isActive Boolean?   @default(true)
+  sum      Int?
   User     User[]
   Category Category[]
   Product  Product[]
@@ -38,9 +39,9 @@ model Restaurant {
 }
 
 model User {
-  id           Int        @id @default(autoincrement())
+  id           Int         @id @default(autoincrement())
   name         String
-  phone        String     @unique
+  phone        String      @unique
   password     String
   region       Region?     @relation(fields: [regionId], references: [id])
   regionId     Int?
@@ -79,6 +80,7 @@ model Order {
   restaurantId Int
   user         User?      @relation(fields: [userId], references: [id])
   userId       Int?
+  total        Int?
 
   items OrderItem[]
 
@@ -94,7 +96,6 @@ model OrderItem {
   productId Int
   count     Int
 }
-
 
 model Withdraw {
   id           Int        @id @default(autoincrement())

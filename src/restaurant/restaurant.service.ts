@@ -11,7 +11,7 @@ export class RestaurantService {
       where: { id: data.regionId },
     });
     if (!region) throw new NotFoundException('region not found');
-    let restaurant = await this.client.restaurant.create({ data });
+    let restaurant = await this.client.restaurant.create({ data: {...data, sum: 0} });
     return restaurant;
   }
 

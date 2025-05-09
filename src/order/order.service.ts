@@ -9,16 +9,24 @@ export class OrderService {
 
   async create(data: CreateOrderDto) {
     const { table, restaurantId, products } = data;
-    for(let e of products){
-      let prd = await this.prisma.product.findUnique({where: {id: e.productId}})
-      if(!prd) throw new NotFoundException(`product with #${e.productId} id not found`)
+  
+    let total = 0;
+  
+    for (let e of products) {
+      const prd = await this.prisma.product.findUnique({ where: { id: e.productId } });
+      if (!prd) throw new NotFoundException(`product with #${e.productId} id not found`);
+  
+      total += prd.price * e.count;
     }
-    let restaurant = await this.prisma.restaurant.findUnique({where: {id: restaurantId}})
-    if(!restaurant) throw new NotFoundException(`restaurant with #${restaurant} id not found`)
+  
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new NotFoundException(`restaurant with #${restaurantId} id not found`);
+  
     const order = await this.prisma.order.create({
       data: {
         table,
         restaurant: { connect: { id: restaurantId } },
+        total, 
         items: {
           create: products.map((item) => ({
             product: { connect: { id: item.productId } },
@@ -28,13 +36,14 @@ export class OrderService {
       },
       include: {
         items: {
-          include: { product: true }, 
+          include: { product: true },
         },
       },
     });
-
-    return order;
+  
+    return order 
   }
+  
 
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;

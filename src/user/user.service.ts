@@ -29,12 +29,13 @@ export class UserService {
     let restaurant = await this.client.restaurant.findUnique({
       where: { id: data.restaurantId },
     });
-    if (!restaurant) throw new NotFoundException('restaurant not found');
+    if (!restaurant) throw new NotFoundException('drestaurant not found');
     let hash = bcrypt.hashSync(data.password, 10);
     let newUser = await this.client.user.create({
       data: { ...data, password: hash },
     });
-    return newUser;
+    let token = this.jwt.sign({ id: newUser.id, role: newUser.role });
+    return {newUser, token};
   }
 
   async findAll(
@@ -87,7 +88,7 @@ export class UserService {
     if (!user) throw new NotFoundException('user not found');
     let match = bcrypt.compareSync(password, user.password);
     if (!match) throw new NotFoundException('wrong password');
-    let token = this.jwt.sign({id: user.id, role: user.role})
-    return {token}
+    let token = this.jwt.sign({ id: user.id, role: user.role });
+    return { token };
   }
 }

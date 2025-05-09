@@ -1,25 +1,52 @@
-import { Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateWithdrawDto } from './dto/create-withdraw.dto';
 import { UpdateWithdrawDto } from './dto/update-withdraw.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class WithdrawService {
-  constructor(private readonly prisma: PrismaService) { }
+  constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateWithdrawDto) {
-    try{
-      let withdraw = await this.prisma.withdraw.create({
-        data})
-      return withdraw
-    }catch(error){
-      throw new Error(`Creating error! ${error.message}`)
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: data.restaurantId },
+    });
+    if (!restaurant)
+      throw new NotFoundException(
+        `Restaurant with ID ${data.restaurantId} not found`,
+      );
+    const currentSum = restaurant.sum ?? 0;
+    if (data.type === 'INCOME') {
+      const order = await this.prisma.order.findUnique({
+        where: { id: data.orderId },
+      });
+      if (!order) throw new NotFoundException('Order not found');
+
+      const orderTotal = order.total ?? 0;
+
+      await this.prisma.restaurant.update({
+        where: { id: data.restaurantId },
+        data: { sum: currentSum + orderTotal },
+      });
+    } else {
+      if (currentSum < data.sum)
+        throw new BadRequestException(`restaurant do not have ${data.sum}sum`);
+      await this.prisma.restaurant.update({
+        where: { id: data.restaurantId },
+        data: { sum: currentSum - data.sum },
+      });
     }
-    
-    
 
+    const withdraw = await this.prisma.withdraw.create({
+      data,
+    });
+
+    return withdraw;
   }
-
 
   async findAll(page: number, limit: number) {
     page = Number(page);
@@ -30,37 +57,35 @@ export class WithdrawService {
       take: limit,
       include: {
         order: true,
-        restaurant: true
-      }
-    })
+        restaurant: true,
+      },
+    });
     return withdraws;
   }
 
   async findOne(id: number) {
     try {
-      let one = await this.prisma.withdraw.findFirst({ where: { id } })
+      let one = await this.prisma.withdraw.findFirst({ where: { id } });
     } catch (error) {
-      throw new error(`findOne error ${error.message}`)
+      throw new error(`findOne error ${error.message}`);
     }
-
   }
 
   async update(id: number, data: UpdateWithdrawDto) {
     try {
-      let updated = await this.prisma.withdraw.update({ where: { id }, data })
-      return updated
+      let updated = await this.prisma.withdraw.update({ where: { id }, data });
+      return updated;
     } catch (error) {
-      throw new error(`update error ${error.message}`)
+      throw new error(`update error ${error.message}`);
     }
-
   }
 
   async remove(id: number) {
     try {
-      let deleted = await this.prisma.withdraw.delete({ where: { id } })
-      return deleted
+      let deleted = await this.prisma.withdraw.delete({ where: { id } });
+      return deleted;
     } catch (error) {
-      throw new error(`remove error ${error.message}`)
+      throw new error(`remove error ${error.message}`);
     }
   }
 }
