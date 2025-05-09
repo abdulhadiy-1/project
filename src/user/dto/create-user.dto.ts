@@ -10,7 +10,7 @@ export class CreateUserDto {
   password: string;
   @ApiProperty()
   regionId: number;
-  @ApiProperty()
+  @ApiProperty({enum: Role})
   role: Role;
   @ApiProperty()
   restaurantId: number;

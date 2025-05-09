@@ -88,6 +88,6 @@ export class UserService {
     let match = bcrypt.compareSync(password, user.password);
     if (!match) throw new NotFoundException('wrong password');
     let token = this.jwt.sign({id: user.id, role: user.role})
-    return token
+    return {token}
   }
 }

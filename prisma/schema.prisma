@@ -42,12 +42,12 @@ model User {
   name         String
   phone        String     @unique
   password     String
-  region       Region     @relation(fields: [regionId], references: [id])
-  regionId     Int
+  region       Region?     @relation(fields: [regionId], references: [id])
+  regionId     Int?
   role         Role
   balance      Int?
-  restaurant   Restaurant @relation(fields: [restaurantId], references: [id])
-  restaurantId Int
+  restaurant   Restaurant? @relation(fields: [restaurantId], references: [id])
+  restaurantId Int?
   Order        Order[]
 }
 
@@ -68,7 +68,8 @@ model Product {
   category     Category   @relation(fields: [categoryId], references: [id])
   categoryId   Int
   isActive     Boolean    @default(true)
-  Order        Order[]    @relation("OrderItem")
+
+  orderItems OrderItem[]
 }
 
 model Order {
@@ -78,10 +79,22 @@ model Order {
   restaurantId Int
   user         User?      @relation(fields: [userId], references: [id])
   userId       Int?
-  product      Product[]  @relation("OrderItem")
-  Withdraw     Withdraw[]
-  Debt         Debt[]
+
+  items OrderItem[]
+
+  Withdraw Withdraw[]
+  Debt     Debt[]
 }
+
+model OrderItem {
+  id        Int     @id @default(autoincrement())
+  order     Order   @relation(fields: [orderId], references: [id])
+  orderId   Int
+  product   Product @relation(fields: [productId], references: [id])
+  productId Int
+  count     Int
+}
+
 
 model Withdraw {
   id           Int        @id @default(autoincrement())

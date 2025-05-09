@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
@@ -8,37 +8,69 @@ export class OrderService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(data: CreateOrderDto) {
-    
-    try {
-      let order = await this.prisma.order.create({ data });
-      return order;
-    } catch (error) {
-      throw new Error(`Creating error! ${error.message}`);
+    const { table, restaurantId, products } = data;
+    for(let e of products){
+      let prd = await this.prisma.product.findUnique({where: {id: e.productId}})
+      if(!prd) throw new NotFoundException(`product with #${e.productId} id not found`)
     }
+    let restaurant = await this.prisma.restaurant.findUnique({where: {id: restaurantId}})
+    if(!restaurant) throw new NotFoundException(`restaurant with #${restaurant} id not found`)
+    const order = await this.prisma.order.create({
+      data: {
+        table,
+        restaurant: { connect: { id: restaurantId } },
+        items: {
+          create: products.map((item) => ({
+            product: { connect: { id: item.productId } },
+            count: item.count,
+          })),
+        },
+      },
+      include: {
+        items: {
+          include: { product: true }, 
+        },
+      },
+    });
+
+    return order;
   }
 
   async findAll(page: number, limit: number) {
-    try {
-      const skip = (page - 1) * limit;
-      let orders = await this.prisma.order.findMany({
+    const skip = (page - 1) * limit;
+    const orders = await this.prisma.order.findMany({
       skip,
       take: limit,
+      include: {
+        items: {
+          include: {
+            product: true,
+          },
+        },
+        Withdraw: true,
+        Debt: true,
+        user: true,
+      },
+    });
+
+    return orders;
+  }
+
+  async findOne(id: number) {
+    try {
+      let one = await this.prisma.order.findFirst({
+        where: { id },
         include: {
-          product: true,
+          items: {
+            include: {
+              product: true,
+            },
+          },
           Withdraw: true,
           Debt: true,
           user: true,
         },
       });
-      return orders;
-    } catch (error) {
-      throw new Error(`findAll error! ${error.message}`);
-    }
-  }
-
-  async findOne(id: number) {
-    try {
-      let one = await this.prisma.order.findFirst({ where: { id } });
       return one;
     } catch (error) {
       throw new Error(`findOne error! ${error.message}`);
