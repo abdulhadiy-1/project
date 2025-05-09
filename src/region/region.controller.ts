@@ -1,7 +1,8 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query } from '@nestjs/common';
 import { RegionService } from './region.service';
 import { CreateRegionDto } from './dto/create-region.dto';
 import { UpdateRegionDto } from './dto/update-region.dto';
+import { ApiQuery } from '@nestjs/swagger';
 
 @Controller('region')
 export class RegionController {
@@ -11,10 +12,13 @@ export class RegionController {
   create(@Body() createRegionDto: CreateRegionDto) {
     return this.regionService.create(createRegionDto);
   }
-
+  @ApiQuery({name:'limit', required:false,type:Number})
+  @ApiQuery({name:'page', required:false,type:Number})
   @Get()
-  findAll() {
-    return this.regionService.findAll();
+  findAll(
+    @Query('limit')limit:number=10,
+    @Query('page')page:number=1) {
+    return this.regionService.findAll(page,limit);
   }
 
   @Get(':id')

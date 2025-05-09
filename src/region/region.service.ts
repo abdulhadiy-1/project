@@ -16,9 +16,15 @@ export class RegionService {
     }
   }
 
-  async findAll() {
+  async findAll(page: number, limit: number) {
     try {
-      let regions = await this.prisma.region.findMany();
+      page = Number(page);
+      limit = Number(limit);
+      const skip = (page - 1) * limit
+      let regions = await this.prisma.region.findMany({
+        skip,
+        take: limit,
+      });
       return regions
     } catch (error) {
       throw new Error(`findAll error! ${error.message}`)

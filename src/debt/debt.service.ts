@@ -16,19 +16,25 @@ export class DebtService {
     }
   }
 
-  async findAll() {
+  async findAll(page: number, limit: number) {
     try {
-      let debts = await this.prisma.debt.findMany({
+      const skip = (page - 1) * limit;
+  
+      const debts = await this.prisma.debt.findMany({
+        skip,
+        take: limit,
         include: {
           order: true,
           restaurant: true,
-        }
-      })
+        },
+      });
+  
       return debts;
     } catch (error) {
-      throw new Error(`findAll error ${error.message}`)
+      throw new Error(`findAll error ${error.message}`);
     }
   }
+  
 
   async findOne(id: number) {
     try {

@@ -17,9 +17,12 @@ export class OrderService {
     }
   }
 
-  async findAll() {
+  async findAll(page: number, limit: number) {
     try {
+      const skip = (page - 1) * limit;
       let orders = await this.prisma.order.findMany({
+      skip,
+      take: limit,
         include: {
           product: true,
           Withdraw: true,
