@@ -27,6 +27,7 @@ export class OrderService {
         table,
         restaurant: { connect: { id: restaurantId } },
         total, 
+        status: 'PANDING',
         items: {
           create: products.map((item) => ({
             product: { connect: { id: item.productId } },

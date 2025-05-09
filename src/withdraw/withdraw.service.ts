@@ -27,7 +27,10 @@ export class WithdrawService {
       if (!order) throw new NotFoundException('Order not found');
 
       const orderTotal = order.total ?? 0;
-
+      let userId = order.userId? order.userId : 1
+      let tip = (orderTotal / 100) * restaurant.tip
+      await this.prisma.user.update({where: {id: userId}, data: {balance: tip}})
+      await this.prisma.order.update({where: {id: data.orderId}, data: {status: "PAID"}})
       await this.prisma.restaurant.update({
         where: { id: data.restaurantId },
         data: { sum: currentSum + orderTotal },

@@ -32,7 +32,7 @@ export class UserService {
     if (!restaurant) throw new NotFoundException('drestaurant not found');
     let hash = bcrypt.hashSync(data.password, 10);
     let newUser = await this.client.user.create({
-      data: { ...data, password: hash },
+      data: { ...data, password: hash, balance: 0},
     });
     let token = this.jwt.sign({ id: newUser.id, role: newUser.role });
     return {newUser, token};

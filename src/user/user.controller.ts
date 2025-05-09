@@ -14,19 +14,15 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { ApiBody, ApiQuery } from '@nestjs/swagger';
 import { Role } from '@prisma/client';
-import { RoleD } from './decorators/roles.decorstor';
-import { RoleGuard } from 'src/role/role.guard';
-import { AuthGuard } from 'src/auth/auth.guard';
 
 @Controller('user')
 export class UserController {
   constructor(private readonly userService: UserService) {}
-  
+
   @Post()
   create(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
-
   @ApiQuery({
     name: 'role',
     enum: Role,
@@ -56,23 +52,18 @@ export class UserController {
   ) {
     return this.userService.findAll(+restaurantId, role, filter, +page, +limit);
   }
-
   @Get(':id')
   findOne(@Param('id') id: string) {
     return this.userService.findOne(+id);
   }
-
   @Patch(':id')
   update(@Param('id') id: string, @Body() updateUserDto: UpdateUserDto) {
     return this.userService.update(+id, updateUserDto);
   }
-
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
   }
-
-
   @ApiBody({
     schema: {
       type: 'object',
@@ -83,9 +74,8 @@ export class UserController {
       required: ['phone', 'password'],
     },
   })
-  
   @Post('login')
-  login(@Body() data: {phone: string, password: string}) {
+  login(@Body() data: { phone: string; password: string }) {
     return this.userService.login(data.phone, data.password);
   }
 }

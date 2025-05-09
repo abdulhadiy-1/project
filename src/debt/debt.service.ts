@@ -10,6 +10,7 @@ export class DebtService {
   async create(data: CreateDebtDto) {
     try {
       let debt = await this.prisma.debt.create({ data })
+      await this.prisma.order.update({where: {id: data.orderId}, data: {status: "DEBT"}})
       return debt;
     } catch (error) {
       throw new Error(`Creating error! ${error.message}`)

@@ -10,9 +10,22 @@ import { WithdrawModule } from './withdraw/withdraw.module';
 import { OrderModule } from './order/order.module';
 import { DebtModule } from './debt/debt.module';
 import { RegionModule } from './region/region.module';
+import { TelegrafModule } from 'nestjs-telegraf';
+import { TgModule } from './tg/tg.module';
 
 @Module({
-  imports: [RegionModule, PrismaModule, RestaurantModule, UserModule, CategoryModule, ProductModule,OrderModule, WithdrawModule,DebtModule],
+  imports: [
+    RegionModule,
+    PrismaModule,
+    RestaurantModule,
+    UserModule,
+    CategoryModule,
+    ProductModule,
+    OrderModule,
+    WithdrawModule,
+    DebtModule,
+    TgModule,
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
