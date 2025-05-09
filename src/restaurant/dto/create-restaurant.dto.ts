@@ -18,4 +18,7 @@ export class CreateRestaurantDto {
 
   @ApiProperty()
   isActive?: boolean;
+
+  @ApiProperty()
+  tgUserName: string
 }

@@ -2,31 +2,45 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateOrderDto } from './dto/create-order.dto';
 import { UpdateOrderDto } from './dto/update-order.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { TelegramService } from 'src/tg/tg.service';
 
 @Injectable()
 export class OrderService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly tgService: TelegramService,
+  ) {}
 
   async create(data: CreateOrderDto) {
     const { table, restaurantId, products } = data;
-  
+
     let total = 0;
-  
+
     for (let e of products) {
-      const prd = await this.prisma.product.findUnique({ where: { id: e.productId } });
-      if (!prd) throw new NotFoundException(`product with #${e.productId} id not found`);
-  
+      const prd = await this.prisma.product.findUnique({
+        where: { id: e.productId },
+      });
+      if (!prd)
+        throw new NotFoundException(
+          `product with #${e.productId} id not found`,
+        );
+
       total += prd.price * e.count;
     }
-  
-    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
-    if (!restaurant) throw new NotFoundException(`restaurant with #${restaurantId} id not found`);
-  
+
+    const restaurant = await this.prisma.restaurant.findUnique({
+      where: { id: restaurantId },
+    });
+    if (!restaurant)
+      throw new NotFoundException(
+        `restaurant with #${restaurantId} id not found`,
+      );
+
     const order = await this.prisma.order.create({
       data: {
         table,
         restaurant: { connect: { id: restaurantId } },
-        total, 
+        total,
         status: 'PANDING',
         items: {
           create: products.map((item) => ({
@@ -41,10 +55,25 @@ export class OrderService {
         },
       },
     });
-  
-    return order 
+    const productNames =
+      'New order:\n\n' +
+      order.items
+        .map((item) => `food: ${item.product.name}, count:${item.count}`)
+        .join(',\n') +
+      `\n\ntotal: ${total}sum`;
+    if (restaurant.tgUserName) {
+      try {
+        this.tgService.sendMessageByUsername(
+          productNames,
+          restaurant.tgUserName,
+        );
+      } catch (error) {
+        console.log(error);
+      }
+    }
+
+    return order;
   }
-  
 
   async findAll(page: number, limit: number) {
     const skip = (page - 1) * limit;

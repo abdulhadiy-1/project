@@ -21,21 +21,23 @@ model Region {
 }
 
 model Restaurant {
-  id       Int        @id @default(autoincrement())
-  name     String
-  region   Region     @relation(fields: [regionId], references: [id])
-  regionId Int
-  adres    String
-  tip      Int
-  phone    String
-  isActive Boolean?   @default(true)
-  sum      Int?
-  User     User[]
-  Category Category[]
-  Product  Product[]
-  Order    Order[]
-  Withdraw Withdraw[]
-  Debt     Debt[]
+  id         Int        @id @default(autoincrement())
+  name       String
+  region     Region     @relation(fields: [regionId], references: [id])
+  regionId   Int
+  adres      String
+  tip        Int
+  phone      String
+  isActive   Boolean?   @default(true)
+  sum        Int?
+  tgUserName String? @unique
+  tgChatId   String?
+  User       User[]
+  Category   Category[]
+  Product    Product[]
+  Order      Order[]
+  Withdraw   Withdraw[]
+  Debt       Debt[]
 }
 
 model User {
