@@ -1,12 +1,27 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+  Query,
+} from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { Role } from '@prisma/client';
+import { JwtService } from '@nestjs/jwt';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class UserService {
-  constructor(private client: PrismaService) {}
+  constructor(
+    private client: PrismaService,
+    private jwt: JwtService,
+  ) {}
   async create(data: CreateUserDto) {
+    let user = await this.client.user.findUnique({
+      where: { phone: data.phone },
+    });
+    if (user) throw new BadRequestException('user alredy exists');
     let region = await this.client.region.findUnique({
       where: { id: data.regionId },
     });
@@ -15,12 +30,35 @@ export class UserService {
       where: { id: data.restaurantId },
     });
     if (!restaurant) throw new NotFoundException('restaurant not found');
-    let user = await this.client.user.create({ data });
-    return user;
+    let hash = bcrypt.hashSync(data.password, 10);
+    let newUser = await this.client.user.create({
+      data: { ...data, password: hash },
+    });
+    return newUser;
   }
 
-  async findAll() {
-    let users = await this.client.user.findMany();
+  async findAll(
+    restaurantId: number,
+    role: Role,
+    filter: string,
+    page: number,
+    limit: number,
+  ) {
+    let take = limit || 10;
+    let skip = page ? (page - 1) * take : 0;
+    let where: any = {};
+    if (restaurantId) {
+      where.restaurantId = restaurantId;
+    }
+    if (role) {
+      where.role = role;
+    }
+    if (filter) {
+      where.name = {
+        startWith: filter,
+      };
+    }
+    let users = await this.client.user.findMany({ where, skip, take });
     return users;
   }
 
@@ -42,5 +80,14 @@ export class UserService {
     if (!user) throw new NotFoundException('user not found');
     let deleted = await this.client.user.delete({ where: { id } });
     return deleted;
+  }
+
+  async login(phone: string, password: string) {
+    let user = await this.client.user.findUnique({ where: { phone } });
+    if (!user) throw new NotFoundException('user not found');
+    let match = bcrypt.compareSync(password, user.password);
+    if (!match) throw new NotFoundException('wrong password');
+    let token = this.jwt.sign({id: user.id, role: user.role})
+    return token
   }
 }

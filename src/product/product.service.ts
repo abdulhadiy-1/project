@@ -19,8 +19,29 @@ export class ProductService {
     return prd;
   }
 
-  async findAll() {
-    let prd = await this.client.product.findMany();
+  async findAll(
+    restaurantId: number,
+    filter: string,
+    page: number,
+    limit: number,
+    categoryId: number,
+  ) {
+    let take = limit || 10;
+    let skip = page ? (page - 1) * take : 0;
+    let where: any = {};
+    if (restaurantId) {
+      where.restaurantId = restaurantId;
+    }
+    if (categoryId) {
+      where.categoryId = categoryId;
+    }
+    if (filter) {
+      where.name = {
+        startWith: filter,
+      };
+    }
+
+    let prd = await this.client.product.findMany({ where, skip, take });
     return prd;
   }
 

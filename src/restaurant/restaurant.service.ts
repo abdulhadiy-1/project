@@ -15,8 +15,20 @@ export class RestaurantService {
     return restaurant;
   }
 
-  async findAll() {
-    let restaurants = await this.client.restaurant.findMany();
+  async findAll(filter: string, page: number, limit: number) {
+    let take = limit || 10;
+    let skip = page ? (page - 1) * take : 0;
+    let where: any = {};
+    if (filter) {
+      where.name = {
+        startWith: filter,
+      };
+    }
+    let restaurants = await this.client.restaurant.findMany({
+      where,
+      skip,
+      take,
+    });
     return restaurants;
   }
 

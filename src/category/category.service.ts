@@ -17,8 +17,25 @@ export class CategoryService {
     return category;
   }
 
-  async findAll() {
-    let categories = await this.client.category.findMany();
+
+  async findAll(
+    restaurantId: number,
+    filter: string,
+    page: number,
+    limit: number,
+  ) {
+    let take = limit || 10;
+    let skip = page ? (page - 1) * take : 0;
+    let where: any = {};
+    if (restaurantId) {
+      where.restaurantId = restaurantId;
+    }
+    if (filter) {
+      where.name = {
+        startWith: filter,
+      };
+    }
+    let categories = await this.client.category.findMany({where, skip, take});
     return categories;
   }
 

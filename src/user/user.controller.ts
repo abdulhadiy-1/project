@@ -1,7 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  Query,
+} from '@nestjs/common';
 import { UserService } from './user.service';
 import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
+import { ApiBody, ApiQuery } from '@nestjs/swagger';
+import { Role } from '@prisma/client';
 
 @Controller('user')
 export class UserController {
@@ -12,9 +23,34 @@ export class UserController {
     return this.userService.create(createUserDto);
   }
 
+  @ApiQuery({
+    name: 'role',
+    enum: Role,
+    required: false,
+  })
+  @ApiQuery({
+    name: 'filter',
+    required: false,
+  })
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    default: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    default: 10,
+  })
   @Get()
-  findAll() {
-    return this.userService.findAll();
+  findAll(
+    @Query('restaurantId') restaurantId: string,
+    @Query('role') role: Role,
+    @Query('filter') filter: string,
+    @Query('page') page: string,
+    @Query('limit') limit: string,
+  ) {
+    return this.userService.findAll(+restaurantId, role, filter, +page, +limit);
   }
 
   @Get(':id')
@@ -30,5 +66,22 @@ export class UserController {
   @Delete(':id')
   remove(@Param('id') id: string) {
     return this.userService.remove(+id);
+  }
+
+
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        phone: { type: 'string' },
+        password: { type: 'string' },
+      },
+      required: ['phone', 'password'],
+    },
+  })
+  
+  @Post('login')
+  login(@Body() data: {phone: string, password: string}) {
+    return this.userService.login(data.phone, data.password);
   }
 }
