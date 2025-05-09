@@ -28,13 +28,9 @@ export class OrderService {
       total += prd.price * e.count;
     }
 
-    const restaurant = await this.prisma.restaurant.findUnique({
-      where: { id: restaurantId },
-    });
-    if (!restaurant)
-      throw new NotFoundException(
-        `restaurant with #${restaurantId} id not found`,
-      );
+    const restaurant = await this.prisma.restaurant.findUnique({ where: { id: restaurantId } });
+    if (!restaurant) throw new NotFoundException(`restaurant with #${restaurantId} id not found`);
+
 
     const order = await this.prisma.order.create({
       data: {
@@ -79,16 +75,17 @@ export class OrderService {
     const skip = (page - 1) * limit;
     const orders = await this.prisma.order.findMany({
       skip,
-      take: limit,
+      take: 20,
       include: {
         items: {
           include: {
             product: true,
+
           },
+
         },
         Withdraw: true,
         Debt: true,
-        user: true,
       },
     });
 
