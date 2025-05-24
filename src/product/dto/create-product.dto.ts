@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+<<<<<<< HEAD
 import {
   IsString,
   IsNumber,
@@ -55,4 +56,29 @@ export class CreateProductDto {
   @MaxLength(100)
   @MinLength(10)
   imge: string;
+=======
+import { IsBoolean, IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
+
+export class CreateProductDto {
+  @ApiProperty()
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  categoryId: number;
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  restaurantId: number;
+  @ApiProperty()
+  @IsNumber()
+  @IsNotEmpty()
+  price: number;
+  @ApiProperty()
+  @IsBoolean()
+  @IsOptional()
+  isActive: boolean;
+>>>>>>> 5e9747d52eda172d0aa1d8646a3f9f542e77c33d
 }
